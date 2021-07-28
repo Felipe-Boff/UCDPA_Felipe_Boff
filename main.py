@@ -1,12 +1,9 @@
-# 1 Real world scenario = ok +1
 # importing packages
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
 import numpy as np
-from collections import Counter
 import seaborn as sns
-from pandas_profiling import ProfileReport
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
@@ -21,6 +18,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder
 
 # setting up the display of columns/rows/width to better visualize the data frame
 pd.set_option('display.max_rows', 1000)
@@ -39,25 +37,30 @@ print(df.columns)
 
 # Checking Number of restaurants in a given Country
 # px plot
-# country = df.groupby('country')['restaurant_link'].count().reset_index().rename(columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(23)
-# fig_1 = px.bar(country, x='#_Restaurants', y='country', color='country', height=700,
-#              title='Total number of restaurants based on Country', orientation='h')
-# fig_1.show()
-#
-# # Seaborn plot
-# sns.set_color_codes('pastel')
-# fig_2 = sns.barplot(x='#_Restaurants', y='country', data=country, palette="deep")
-#
-#
+country = df.groupby('country')['restaurant_link'].count().reset_index().rename(
+    columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(23)
+fig_1 = px.bar(country, x='#_Restaurants', y='country', color='country', height=700,
+               title='Total number of restaurants based on Country', orientation='h', text='#_Restaurants')
+fig_1.show()
+
+# # Seaborn plot to show the same as above
+sns.set_color_codes('pastel')
+fig_2 = sns.barplot(x='#_Restaurants', y='country', data=country, palette="deep")
+## commenting out the plt.show as it's breaking the code here
+# plt.show()
+
 # # Checking Number of restaurants in the top 20 Cities
-# country = df.groupby('city')['restaurant_link'].count().reset_index().rename(columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(20)
-# # Seaborn plot
-# fig_3 = px.bar(country, x='#_Restaurants', y='city', color='city', height=700,
-#              title='Cities in Europe with biggest number of restaurants', orientation='h')
-# fig_3.show()
-#
-# sns.set_color_codes('pastel')
-# fig_4 = sns.barplot(x='#_Restaurants', y='city', data=country, palette="deep")
+country = df.groupby('city')['restaurant_link'].count().reset_index().rename(
+    columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(20)
+# Seaborn plot
+fig_3 = px.bar(country, x='#_Restaurants', y='city', color='city', height=700,
+               title='Cities in Europe with biggest number of restaurants', orientation='h')
+fig_3.show()
+
+# Seaborn barplot to show the same graph as above
+sns.set_color_codes('pastel')
+fig_4 = sns.barplot(x='#_Restaurants', y='city', data=country, palette="deep")
+## commenting out the plt.show as it's breaking the code here
 # plt.show()
 
 
@@ -65,25 +68,25 @@ print(df.columns)
 # 3.1 Regex = ok +1
 # it has always fascinated me restaurant naming conventions where some will
 # have only A-Z and others will have A-Z and 0-9
-# regex_n = '.*[0-9]+.*'
-# restaurant_w_num = df['restaurant_name']
-# count_n = 0
-# for restaurant in restaurant_w_num:
-#     if re.fullmatch(regex_n, restaurant):
-#         count_n += 1
-# print(count_n)
-#
-# regex_a_z = '^[a-zA-Z_ ]*$'
-# count_a_z = 0
-# for restaurant in restaurant_w_num:
-#     if re.fullmatch(regex_a_z, restaurant):
-#         count_a_z += 1
-# print(count_a_z)
-#
-# df_restaurants_0_9 = df[df['restaurant_name'].str.count(regex_n) > 0]
-# df_restaurants_a_z = df[df['restaurant_name'].str.count(regex_a_z) > 0]
-# print(df_restaurants_0_9.head(5))
-# print(df_restaurants_a_z.head(5))
+regex_n = '.*[0-9]+.*'
+restaurant_w_num = df['restaurant_name']
+count_n = 0
+for restaurant in restaurant_w_num:
+    if re.fullmatch(regex_n, restaurant):
+        count_n += 1
+print(count_n)
+
+regex_a_z = '^[a-zA-Z_ ]*$'
+count_a_z = 0
+for restaurant in restaurant_w_num:
+    if re.fullmatch(regex_a_z, restaurant):
+        count_a_z += 1
+print(count_a_z)
+
+df_restaurants_0_9 = df[df['restaurant_name'].str.count(regex_n) > 0]
+df_restaurants_a_z = df[df['restaurant_name'].str.count(regex_a_z) > 0]
+print(df_restaurants_0_9.head(5))
+print(df_restaurants_a_z.head(5))
 
 # 3.2 replace missing / dropping duplicates / creating new columns = ok +1
 
@@ -135,6 +138,38 @@ print(df.shape)
 obj_cols = df.dtypes[(df.dtypes == 'object')].index
 print(df[obj_cols].describe())
 print(df['country'].value_counts(normalize=True))
+print(df.head(10))
+print(df.info())
+print(df.describe())
+print(df.columns)
+
+# px plot after NaNs fix and dropped columns
+country = df.groupby('country')['restaurant_link'].count().reset_index().rename(
+    columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(23)
+fig_1 = px.bar(country, x='#_Restaurants', y='country', color='country', height=700,
+               title='Total number of restaurants based on Country - clean database', orientation='h',
+               text='#_Restaurants')
+fig_1.show()
+
+# Seaborn plot
+sns.set_color_codes('pastel')
+fig_2 = sns.barplot(x='#_Restaurants', y='country', data=country, palette="deep")
+## plt.show() is blocking the code from running on pycharm hence commented out
+# plt.show()
+
+# # Checking Number of restaurants in the top 20 Cities clean database
+country = df.groupby('city')['restaurant_link'].count().reset_index().rename(
+    columns={'restaurant_link': '#_Restaurants'}).sort_values('#_Restaurants', ascending=False).head(20)
+# Seaborn plot
+fig_3 = px.bar(country, x='#_Restaurants', y='city', color='city', height=700,
+               title='Cities in Europe with biggest number of restaurants', orientation='h', text='#_Restaurants')
+fig_3.show()
+
+sns.set_color_codes('pastel')
+fig_4 = sns.barplot(x='#_Restaurants', y='city', data=country, palette="deep")
+## plt.show() is blocking the code from running on pycharm hence commented out
+# plt.show()
+
 
 # 3.3 Iterators
 # fixing the issue of extra space after comma on some of the columns of the data frame
@@ -149,7 +184,7 @@ for col in list_2:
 print(df[['vegetarian_friendly', 'vegan_options', 'gluten_free']].head(5))
 
 
-##3.4 Merge dataframe
+##3.4 Merge dataframe and unsing function to leverage replicable code
 def aggregate_by(dataframe, col):
     aggregating_df = dataframe.groupby(col).agg(
         restaurants_count=pd.NamedAgg(column='restaurant_link', aggfunc=np.size),
@@ -191,52 +226,99 @@ print(countries_df.info())
 print(countries_df.describe())
 
 
-# Merging dfs
+# Merging dfs and using functions
 def dietary_group(col_diet, agg_col, count_name):
     return df[df[col_diet] == 1].groupby(agg_col).agg(
         **{count_name: pd.NamedAgg(column='restaurant_link', aggfunc=np.size)}).reset_index(level=0)
 
 
-# restaurants vegetarian_friendly
+# restaurants vegetarian_friendly country
 vegetarian_country_df = dietary_group('vegetarian_friendly', 'country', 'vegetarian_count')
 countries_df = pd.merge(countries_df, vegetarian_country_df, how='inner', left_on='country', right_on='country')
 countries_df['vegetarian_count_perc'] = countries_df['vegetarian_count'] / countries_df['restaurants_count']
+# restaurants vegetarian_friendly city
+vegetarian_city_df = dietary_group('vegetarian_friendly', 'city', 'vegetarian_count')
+city_df = pd.merge(city_df, vegetarian_city_df, how='inner', left_on='city', right_on='city')
+city_df['vegetarian_count_perc'] = city_df['vegetarian_count'] / city_df['restaurants_count']
 
-# vegan_options
-vegan_country_df = dietary_group('vegan_options','country','vegan_count')
+# vegan_options country
+vegan_country_df = dietary_group('vegan_options', 'country', 'vegan_count')
 countries_df = pd.merge(countries_df, vegan_country_df, how='inner', left_on='country', right_on='country')
 countries_df['vegan_count_perc'] = countries_df['vegan_count'] / countries_df['restaurants_count']
+# vegan_options city
+vegan_city_df = dietary_group('vegan_options', 'city', 'vegan_count')
+city_df = pd.merge(city_df, vegan_city_df, how='inner', left_on='city', right_on='city')
+city_df['vegan_count_perc'] = city_df['vegan_count'] / city_df['restaurants_count']
 
-# gluten_free
-gluten_free_country_df = dietary_group('gluten_free','country','gluten_free_count')
+# gluten_free country
+gluten_free_country_df = dietary_group('gluten_free', 'country', 'gluten_free_count')
 countries_df = pd.merge(countries_df, gluten_free_country_df, how='inner', left_on='country', right_on='country')
 countries_df['gluten_free_count_perc'] = countries_df['gluten_free_count'] / countries_df['restaurants_count']
+# gluten_free city
+gluten_free_city_df = dietary_group('gluten_free', 'city', 'gluten_free_count')
+city_df = pd.merge(city_df, gluten_free_city_df, how='inner', left_on='city', right_on='city')
+city_df['gluten_free_count_perc'] = city_df['gluten_free_count'] / city_df['restaurants_count']
 
 # dropping the count fields that have been used to calculate the percentages
 countries_df.drop(['vegetarian_count', 'vegan_count', 'gluten_free_count'], axis=1, inplace=True)
 print(countries_df.head(10))
 
-# fig = go.Figure(data=go.Scatter(x=countries_df['open_hours_per_week'], y=countries_df['avg_rating'],
-#                                 marker=dict(size=countries_df['restaurants_count']/1000,
-#                                             color=countries_df['avg_rating']),
-#                                 mode='markers+text',
-#                                 text=countries_df['country'], textposition='top center', textfont=dict(size=9),
-#                                 hoverlabel=dict(namelength=0), # removes the trace number off to the side of the tooltip box
-#                                 hovertemplate='%{text}:<br>%{x:.2f} days<br>%{y:.1f} hours'))
-# fig.update_layout(title='Average rating based on open hours per week (size by restaurants count)',
-#                   title_x=0.5, legend=dict(yanchor='bottom', y=-0.15, xanchor='left', x=0,
-#                                            font=dict(size=10), orientation='h'))
-# fig['layout']['xaxis']['title'] = 'Open hours per week'
-# fig['layout']['yaxis']['title'] = 'Average rating'
-# fig.show()
+# Top 20 European cities dietary preferences avg_rating vs. open hours
+top20_city_df = city_df.sort_values('restaurants_count', ascending=False).head(20)
+print(top20_city_df)
+fig_5 = go.Figure(data=go.Scatter(x=top20_city_df['open_hours_per_week'], y=countries_df['avg_rating'],
+                                  marker=dict(size=top20_city_df['restaurants_count'] / 50,
+                                              color=top20_city_df['avg_rating']),
+                                  mode='markers+text',
+                                  text=top20_city_df['city'], textposition='top center', textfont=dict(size=9),
+                                  hoverlabel=dict(namelength=0),
+                                  # removes the trace number off to the side of the tooltip box
+                                  hovertemplate='%{text}:<br>%{x:.2f} days<br>%{y:.1f} hours'))
+fig_5.update_layout(title='Average rating based on open hours per week (size by restaurants count)',
+                    title_x=0.5, legend=dict(yanchor='bottom', y=-0.15, xanchor='left', x=0,
+                                             font=dict(size=10), orientation='h'))
+fig_5['layout']['xaxis']['title'] = 'Open hours per week'
+fig_5['layout']['yaxis']['title'] = 'Average rating'
+fig_5.show()
+# Top20 European cities reviews based on dietary preferences
+fig = plotly.subplots.make_subplots(rows=1, cols=3, subplot_titles=('Vegetarian', 'Vegan', 'Gluten-free'),
+                                    specs=[[{'type': 'scatter'}, {'type': 'scatter'}, {'type': 'scatter'}]])
+fig.add_trace(go.Scatter(x=top20_city_df['vegetarian_count_perc'], y=top20_city_df['reviews_per_restaurant'],
+                         marker=dict(size=top20_city_df['restaurants_count'] / 100,
+                                     color=top20_city_df['reviews_per_restaurant']), mode='markers+text',
+                         showlegend=False,
+                         text=top20_city_df['city'], textposition='top center', textfont=dict(size=9),
+                         hoverlabel=dict(namelength=0),  # removes the trace number off to the side of the tooltip box
+                         hovertemplate='%{text}:<br>%{x:.2f} days<br>%{y:.1f} hours'), row=1, col=1)
+fig.add_trace(go.Scatter(x=top20_city_df['vegan_count_perc'], y=top20_city_df['reviews_per_restaurant'],
+                         marker=dict(size=top20_city_df['restaurants_count'] / 100,
+                                     color=top20_city_df['reviews_per_restaurant']), mode='markers+text',
+                         showlegend=False,
+                         text=top20_city_df['city'], textposition='top center', textfont=dict(size=9),
+                         hoverlabel=dict(namelength=0),  # removes the trace number off to the side of the tooltip box
+                         hovertemplate='%{text}:<br>%{x:.2f} days<br>%{y:.1f} hours'), row=1, col=2)
+fig.add_trace(go.Scatter(x=top20_city_df['gluten_free_count_perc'], y=top20_city_df['reviews_per_restaurant'],
+                         marker=dict(size=top20_city_df['restaurants_count'] / 100,
+                                     color=top20_city_df['reviews_per_restaurant']), mode='markers+text',
+                         showlegend=False,
+                         text=top20_city_df['city'], textposition='top center', textfont=dict(size=9),
+                         hoverlabel=dict(namelength=0),  # removes the trace number off to the side of the tooltip box
+                         hovertemplate='%{text}:<br>%{x:.2f} days<br>%{y:.1f} hours'), row=1, col=3)
+fig.update_layout(title='Reviews per Restaurant based on Vegetarian %, Vegan %, and Gluten-free %', title_x=0.5,
+                  legend=dict(yanchor='bottom', y=-0.15, xanchor='left', x=0,
+                              font=dict(size=8), orientation='h'))
+fig['layout']['xaxis']['title'] = 'Vegetarian %'
+fig['layout']['xaxis2']['title'] = 'Vegan %'
+fig['layout']['xaxis3']['title'] = 'Gluten-free %'
+fig.show()
+
+# histogram of the median price on the top20 european cities
+sns.set(style="darkgrid")
+sns.histplot(data=top20_city_df, x="median_price", kde=True)
 
 
-
-
-# profile = ProfileReport(countries_df)
-# print(profile)
-# 4 Python
-# 4.1 Functions - create reusable code
+# this plt.show() is blowing the code from running on my pycharm hence it's commmented out
+# plt.show()
 
 
 # 4.2 Use Functions from Numpy or Scipy
@@ -252,94 +334,146 @@ print(countries_df.head(10))
 
 ################ CLUSTERING KMEANS ###############
 # Use a Dictionary or Lists to store Data
-cuisines_list = list(df['cuisines'].str.strip().str.split(','))
-flat_cuisines_list = []
-for sublit in cuisines_list:
-    for cuisines in sublit:
-        flat_cuisines_list.append((cuisines))
-#print(set(flat_cuisines_list))
-cuisines_df = pd.Series(flat_cuisines_list)
-print(cuisines_df.value_counts().sort_values(ascending=False))
+# Want to show the total number of movies by each Genre
 
-df_knn = city_df[['city', 'restaurants_count', 'open_days_per_week', 'open_hours_per_week',
-                   'working_shifts_per_week', 'avg_rating', 'reviews_count', 'median_price']]
-
-def split(data,col):
+def split(data, col):
     new_data = data[col].str.get_dummies(',')
     return new_data
-cuisines_split = split(df,'cuisines')
 
+
+cuisines_unique = split(df, 'cuisines')
 ############### Merging new columns with the dataframe ###############
-#df_knn = pd.concat([df,cuisines_split], axis=1, sort=False)
+cuisines_types = pd.concat([df, cuisines_unique], axis=1)
+cuisines_types = cuisines_types[['city', 'open_days_per_week', 'open_hours_per_week',
+                                 'working_shifts_per_week', 'food', 'service', 'value',
+                                 'avg_rating', 'avg_price', 'European', 'French',
+                                 'Mediterranean', 'British', 'Italian', 'Bar', 'Cafe',
+                                 'Pub', 'Asian', 'Pizza', 'Seafood', 'Fast food', 'Spanish',
+                                 'International', 'German', 'Greek', 'Indian', 'Healthy',
+                                 'Central European', 'Chinese']]
+# cuisines_types = cuisines_types[cuisines_types['city'] == 'Paris'].reset_index()
+
+
+cuisines_types = cuisines_types[cuisines_types['city'].isin(['Paris', 'Rome', 'Madrid', 'Milan', 'Prague', 'Amsterdam',
+                                                             'Lisbon', 'Vienna', 'Munich', 'Budapest', 'Lyon', 'Dublin',
+                                                             'Manchester', 'Stockholm',
+                                                             'Birmingham', 'Copenhagen', 'Marseille', 'Porto', 'Athens',
+                                                             'Nice'])].reset_index()
+print(cuisines_types.head(10))
+# def val_sum(r, c):
+#     return cuisines_unique[c].sum(axis=0)
+
+
+# not sure if I still need this lines of code until print(unique...
+# unique_counts = []
+# row = [cuisines_unique]
+# col = [cuisines_unique.columns]
+#
+# for x in row:
+#     for y in col:
+#         unique_counts.append(val_sum(x, y))
+# print(unique_counts.head(10))
+
+
+# Top 20 cusine types in European restaurants pie chart - done
+print(cuisines_unique.sum().sort_values(ascending=False).head(20))
+plt.figure(figsize=(20, 10))
+names = ['European', 'French', 'Mediterranean', 'British', 'Italian', 'Bar', 'Cafe', 'Pub', 'Asian', 'Pizza',
+         'Seafood', 'Fast food', 'Spanish', 'International', 'German', 'Greek', 'Indian', 'Healthy', 'Central European',
+         'Chinese']
+plt.pie(cuisines_unique.sum().sort_values(ascending=False).head(20), labels=names, autopct='%1.f%%')
+plt.ylabel('Cuisines')
+plt.xlabel('Cuisines %')
+plt.title('Top 20 Cuisines in European restaurants')
+## plt.show is blocking the code here as well, therefore I'm commenting it out
+# plt.show()
+
 
 # Selecting features to cluster
-features = df_knn[['avg_rating','median_price','open_hours_per_week','restaurants_count']].astype(int)
-# features = df_knn[['European','French','Mediterranean','British','Italian','Bar','Cafe','Pub','Asian','Pizza',
-#                'Seafood','Fast food','Spanish','International','German','Greek','Indian','Healthy','Central European',
-#                'Chinese','Portuguese','Grill','American','Japanese','Barbecue','Gastropub','Steakhouse','Contemporary','Dutch','Sushi']].astype(int)
+# first test using Kmeans
+# features = df_knn[['avg_rating','median_price','open_hours_per_week','restaurants_count']].astype(int)
+
+# df for city = Paris
+# df_knn = df_knn_all[df_knn_all['city']=='Paris']
+
+# df_knn_city = aggregate_by(df_knn_all, 'city')
+# df_knn_city = df_knn_city.drop([], axis=1)
+
+# these features are working on the Kmeans for city = Paris
+# features = cuisines_types[['European','French','Mediterranean','British','Italian','Bar','Cafe',
+#                            'Pub','Asian','Pizza', 'Seafood','Fast food','Spanish','International',
+#                            'German','Greek','Indian','Healthy','Central European','Chinese']].astype(int)
+
+
+features = cuisines_types[['open_days_per_week', 'open_hours_per_week', 'working_shifts_per_week',
+                           'food', 'service', 'value', 'avg_rating', 'avg_price', 'European',
+                           'French', 'Mediterranean', 'British', 'Italian', 'Bar', 'Cafe',
+                           'Pub', 'Asian', 'Pizza', 'Seafood', 'Fast food', 'Spanish',
+                           'International', 'German', 'Greek', 'Indian', 'Healthy',
+                           'Central European', 'Chinese']].astype(int)
+
 # Scaling the data
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(features)
 
-# # Using TSNE
+# # # Using TSNE
 tsne = TSNE(n_components=2)
 rating_transform = tsne.fit_transform(scaled_data)
 
 ################ KMeans -  The Elbow Method ###############
-# wcss = []
-# K = range(1,13)
-# for k in K:
-#     kmean = KMeans(n_clusters=k,init='k-means++',random_state=42)
-#     kmean.fit(scaled_data)
-#     wcss.append(kmean.inertia_)
-# fig = px.line(x=K,y=wcss,title='Optimal K from The Elbow Method',
-#               labels={'x':'Number of Clusters','y':'Distortions'})
-# fig.show()
+wcss = []
+K = range(1, 50)
+for k in K:
+    kmean = KMeans(n_clusters=k, init='k-means++', random_state=42)
+    kmean.fit(scaled_data)
+    wcss.append(kmean.inertia_)
+fig = px.line(x=K, y=wcss, title='Optimal K from The Elbow Method',
+              labels={'x': 'Number of Clusters', 'y': 'Distortions'})
+fig.show()
 
 ############## KMEANS ###############
-cluster = KMeans(n_clusters=5)
-predict_group = cluster.fit_predict(scaled_data)
+cluster = KMeans(n_clusters=19, init='k-means++', random_state=42)
+y_kmeans = cluster.fit_predict(scaled_data)
 
-df_tsne = pd.DataFrame(np.column_stack((rating_transform, predict_group,
-                                        df_knn['reviews_count'], df_knn['city'])),
-                       columns=['X', 'Y', 'Group', 'reviews_count', 'city'])
+df_tsne = pd.DataFrame(np.column_stack((rating_transform, y_kmeans,
+                                        cuisines_types['avg_price'], cuisines_types['city'])),
+                       columns=['X', 'Y', 'Group', 'avg_price', 'city'])
 
-fig = px.scatter(df_tsne, x='X', y='Y', hover_data=['reviews_count', 'city'], color='Group',
+fig = px.scatter(df_tsne, x='X', y='Y', hover_data=['avg_price', 'city'], color=y_kmeans,
                  color_discrete_sequence=px.colors.cyclical.IceFire)
 fig.show()
 
-
 # # Boosting
-# print(df.isna().sum())
-# df_boosting = df[
-#     ['vegetarian_friendly', 'open_days_per_week', 'open_hours_per_week', 'working_shifts_per_week', 'avg_rating',
-#      'total_reviews_count', 'food',
-#      'service', 'value', 'avg_price']]
-# print(df_boosting.head(10))
-# df_boosting_cols = ['avg_rating', 'total_reviews_count', 'food', 'service', 'value', 'avg_price']
-# x = df_boosting.drop(labels='vegetarian_friendly', axis=1)
-# y = df['vegetarian_friendly']
-# scaler = StandardScaler()
-# scaled_df = scaler.fit_transform(x)
-# train_x, test_x, train_y, test_y = train_test_split(scaled_df, y, test_size=0.3, random_state=42)
-# model = XGBClassifier(objective='binary:logistic')
-# model.fit(train_x, train_y)
-# # cheking training accuracy
-# y_pred = model.predict(train_x)
-# predictions = [round(value) for value in y_pred]
-# accuracy_train = accuracy_score(train_y, predictions)
-# print(accuracy_train)
-# # cheking initial test accuracy
-# y_pred = model.predict(test_x)
-# predictions = [round(value) for value in y_pred]
-# accuracy_test = accuracy_score(test_y, predictions)
-# print(accuracy_test)
-# print(test_x[0])
-# # param_grid = {
-# #    'learning_rate': [1, 0.1, 0.01, 0.001],
-# #    'max_depth': [3, 5, 10, 20],
-# #    'n_estimators': [10, 50, 100, 200]
-# # }
+print(df.isna().sum())
+df_boosting = df[
+    ['vegetarian_friendly', 'open_days_per_week', 'open_hours_per_week', 'working_shifts_per_week', 'avg_rating',
+     'total_reviews_count', 'food',
+     'service', 'value', 'avg_price']]
+print(df_boosting.head(10))
+df_boosting_cols = ['avg_rating', 'total_reviews_count', 'food', 'service', 'value', 'avg_price']
+x = df_boosting.drop(labels='vegetarian_friendly', axis=1)
+y = df['vegetarian_friendly']
+scaler = StandardScaler()
+scaled_df = scaler.fit_transform(x)
+train_x, test_x, train_y, test_y = train_test_split(scaled_df, y, test_size=0.3, random_state=42)
+model = XGBClassifier(objective='binary:logistic')
+model.fit(train_x, train_y)
+# cheking training accuracy
+y_pred = model.predict(train_x)
+predictions = [round(value) for value in y_pred]
+accuracy_train = accuracy_score(train_y, predictions)
+print('XGBC accuracy train {}'.format(accuracy_train))
+# cheking initial test accuracy
+y_pred = model.predict(test_x)
+predictions = [round(value) for value in y_pred]
+accuracy_test = accuracy_score(test_y, predictions)
+print('XGBC accuracy test {}'.format(accuracy_test))
+print(test_x[0])
+# param_grid = {
+#    'learning_rate': [1, 0.1, 0.01, 0.001],
+#    'max_depth': [3, 5, 10, 20],
+#    'n_estimators': [10, 50, 100, 200]
+# }
 # # rodando ML segunda vez
 # param_grid = {
 #     'learning_rate': [0.1, 0.01, 0.001],
@@ -349,196 +483,87 @@ fig.show()
 # grid = GridSearchCV(XGBClassifier(objective='binary:logistic'), param_grid, verbose=3)
 # grid.fit(train_x, train_y)
 # print(grid.best_params_)
-# # Create new model using the same parameters
-# new_model = XGBClassifier(learning_rate=0.1, max_depth=5, n_estimators=200)
-# new_model.fit(train_x, train_y)
-# y_pred_new = new_model.predict(test_x)
-# predictions_new = [round(value) for value in y_pred_new]
-# accuracy_new = accuracy_score(test_y, predictions_new)
-# print(accuracy_new)
-# # As we have increased the accuracy of the model, we'll save this model
-# filename = 'xgboost_model.pickle'
-# pickle.dump(new_model, open(filename, 'wb'))
-# loaded_model = pickle.load(open(filename, 'rb'))
-# # we'll save the scaler object as well for prediction
-# filename_scaler = 'scaler_model.pickle'
-# pickle.dump(scaler, open(filename_scaler, 'wb'))
-# scaler_model = pickle.load(open(filename_scaler, 'rb'))
-# # Trying a random prediction
-# # is this a vegetarian restaurant Y/N
-# d = scaler_model.transform([[6.0, 24.0, 6.0, 4.5, 133.0, 4.5, 4.5, 4.5, 22.5]])
-# pred = loaded_model.predict(d)
-# print('This data belongs to class :', pred[0])
-#
-# # DecisionTreeClassifier
-# df_tree = df[['vegetarian_friendly', 'open_days_per_week', 'open_hours_per_week', 'working_shifts_per_week',
-#               'avg_rating', 'total_reviews_count', 'food', 'service', 'value', 'avg_price']]
-# print(df_tree.info())
-# X_tree = df_tree.drop(columns='vegetarian_friendly')
-# y_tree = df_tree['vegetarian_friendly']
-#
-# x_train, x_test, y_train, y_test = train_test_split(X_tree, y_tree, test_size=0.30, random_state=42)
-# # let's first visualize the tree on the data without doing any pre processing
-# clf = DecisionTreeClassifier(min_samples_split=2)
-# clf.fit(x_train, y_train)
-# # accuracy of our classification tree
-# print(clf.score(x_test, y_test))
-# # let's first visualize the tree on the data without doing any pre processing
-# clf2 = DecisionTreeClassifier(criterion='entropy', max_depth=24, min_samples_leaf=1)
-# clf2.fit(x_train, y_train)
-# print(clf2.score(x_test, y_test))
-# rand_clf = RandomForestClassifier(random_state=6)
-# rand_clf.fit(x_train, y_train)
-# rand_clf.score(x_test, y_test)
+##  {'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 200}
+# Create new model using the same parameters
+new_model = XGBClassifier(learning_rate=0.1, max_depth=5, n_estimators=200)
+new_model.fit(train_x, train_y)
+y_pred_new = new_model.predict(test_x)
+predictions_new = [round(value) for value in y_pred_new]
+accuracy_new = accuracy_score(test_y, predictions_new)
+print('XGBC best parameters accuracy {}'.format(accuracy_new))
+# As we have increased the accuracy of the model, we'll save this model
+filename = 'xgboost_model.pickle'
+pickle.dump(new_model, open(filename, 'wb'))
+loaded_model = pickle.load(open(filename, 'rb'))
+# we'll save the scaler object as well for prediction
+filename_scaler = 'scaler_model.pickle'
+pickle.dump(scaler, open(filename_scaler, 'wb'))
+scaler_model = pickle.load(open(filename_scaler, 'rb'))
+# Trying a random prediction
+# is this a vegetarian restaurant Y/N
+d = scaler_model.transform([[6.0, 24.0, 6.0, 4.5, 133.0, 4.5, 4.5, 4.5, 22.5]])
+pred = loaded_model.predict(d)
+print('This data belongs to class :', pred[0])
+
+# DecisionTreeClassifier
+df_tree = df[['vegetarian_friendly', 'open_days_per_week', 'open_hours_per_week', 'working_shifts_per_week',
+              'avg_rating', 'total_reviews_count', 'food', 'service', 'value', 'avg_price']]
+print(df_tree.info())
+X_tree = df_tree.drop(columns='vegetarian_friendly')
+y_tree = df_tree['vegetarian_friendly']
+
+x_train, x_test, y_train, y_test = train_test_split(X_tree, y_tree, test_size=0.30, random_state=42)
+# let's first visualize the tree on the data without doing any pre processing
+clf = DecisionTreeClassifier(min_samples_split=2)
+clf.fit(x_train, y_train)
+# accuracy of our classification tree
+print('Test score Decision Tree with min_samples split {}'.format(clf.score(x_test, y_test)))
+# let's first visualize the tree on the data without doing any pre processing
+clf2 = DecisionTreeClassifier(criterion='entropy', max_depth=24, min_samples_leaf=1)
+clf2.fit(x_train, y_train)
+print('Test score Decision Tree with  criterion, max_depth and min_samples leaf {}'.format(clf2.score(x_test, y_test)))
+rand_clf = RandomForestClassifier(random_state=6)
+rand_clf.fit(x_train, y_train)
+print('Test score Random Forest Classifier {}'.format(rand_clf.score(x_test, y_test)))
+# tuning three hyperparameters right now, we are passing the different values for both parameters
+# grid_param = {
+#     "n_estimators": [20, 50, 100],
+#     'criterion': ['gini', 'entropy'],
+#     'max_depth': range(2, 10, 1),
+#     'min_samples_leaf': range(1, 5, 1),
+#     'min_samples_split': range(2, 5, 1),
+#     'max_features': ['auto']
+# }
+# grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
+# grid_search.fit(x_train, y_train)
+# # let's see the best parameters as per our grid search
+# print(grid_search.best_params_)
+### {'criterion': 'gini', 'max_depth': 9, 'max_features': 'auto', 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+rand_clf = RandomForestClassifier(criterion='gini', max_depth=9, max_features='auto',
+                                  min_samples_leaf=2,
+                                  min_samples_split=2,
+                                  n_estimators=100,
+                                  random_state=42)
+
+rand_clf.fit(x_train, y_train)
+print('Test score for best parameters using Random forest Classifier {}'.format(rand_clf.score(x_test, y_test)))
+
 # we are tuning three hyperparameters right now, we are passing the different values for both parameters
 # grid_param = {
-#     "n_estimators" : [20,50,100],
+#     "n_estimators": [90, 100, 115],
 #     'criterion': ['gini', 'entropy'],
-#     'max_depth' : range(2,10,1),
-#     'min_samples_leaf' : range(1,5,1),
-#     'min_samples_split': range(2,5,1),
-#     'max_features' : ['auto']
+#     'min_samples_leaf': [1, 2, 3, 4, 5],
+#     'min_samples_split': [4, 5, 6, 7, 8],
+#     'max_features': ['auto', 'log2']
 # }
-# grid_search = GridSearchCV(estimator=rand_clf,param_grid=grid_param,cv=5,n_jobs =-1,verbose = 3)
-# grid_search.fit(x_train,y_train)
-# let's see the best parameters as per our grid search
-# print(grid_search.best_params_)
 #
-# rand_clf = RandomForestClassifier(criterion='gini', max_depth=9, max_features='auto',
-#                                   min_samples_leaf=3,
-#                                   min_samples_split=2,
-#                                   n_estimators=50,
-#                                   random_state=42)
-#
-# rand_clf.fit(x_train, y_train)
-# print(rand_clf.score(x_test, y_test))
-
-# we are tuning three hyperparameters right now, we are passing the different values for both parameters
-# grid_param = {
-#     "n_estimators" : [90,100,115],
-#     'criterion': ['gini', 'entropy'],
-#     'min_samples_leaf' : [1,2,3,4,5],
-#     'min_samples_split': [4,5,6,7,8],
-#     'max_features' : ['auto','log2']
-# }
-# # best_params: {'criterion': 'gini', 'max_features': 'auto', 'min_samples_leaf': 2, 'min_samples_split': 4, 'n_estimators': 90}
-# grid_search = GridSearchCV(estimator=rand_clf,param_grid=grid_param,cv=5,n_jobs =-1,verbose = 3)
-# grid_search.fit(x_train,y_train)
+# grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
+# grid_search.fit(x_train, y_train)
 # print(grid_search.best_params_)
 
-# rand_clf = RandomForestClassifier(criterion='gini', max_features='auto', min_samples_leaf=2,
-#                                   min_samples_split=4, n_estimators=90, random_state=42)
-#
-# rand_clf.fit(x_train, y_train)
-# print(rand_clf.score(x_test, y_test))
+## {'criterion': 'gini', 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 4, 'n_estimators': 100}
+rand_clf = RandomForestClassifier(criterion='gini', max_features='auto', min_samples_leaf=1,
+                                  min_samples_split=4, n_estimators=100, random_state=42)
 
-# print(df_boosting.columns)
-# print(df_boosting.isna().sum())
-# print(df['avg_price'].median())
-
-# df_boosting['meals'] = df_boosting['meals'].fillna(df_boosting['meals'].select_dtypes(include='object').mode().iloc[0],inplace=True)
-# data['Triceps skinfold thickness (mm)']=data['Triceps skinfold thickness (mm)'].fillna(data['Triceps skinfold thickness (mm)'].mean())
-
-
-
-
-
-
-# 5.3 Analysing
-
-
-# 6 Visualize =
-
-# sns.relplot(x = countries_df['open_hours_per_week'], y = countries_df['avg_rating'], data = countries_df,
-#  hue = countries_df['restaurants_count'])
-# plt.show()
-# x = countries_df['open_hours_per_week']
-# y = countries_df['avg_rating']
-# points_size = countries_df['restaurants_count']/100
-# colors = countries_df['avg_rating']
-
-# plt.scatter(x, y, s=points_size, c=colors)
-# plt.title("Scatter Plot with increase in size of scatter points ", fontsize=12)
-# plt.xlabel('x-axis', fontsize=12)
-# plt.ylabel('y-axis', fontsize=12)
-# plt.show()
-
-
-
-
-# fig_2 = df['avg_rating'].plot(kind='hist')
-# plt.xlabel("avg rating", labelpad=14)
-# plt.title("Restaurant average rating")
-# plt.show()
-
-# 7 Create Insights
-
-
-# data_1 = df[df['country'] == 'Italy']
-# y = df['avg_rating']
-# x = df['open_hours_per_week']
-# hue
-# print(y)
-# print(x)
-# sns.scatterplot(x, y , data = data_1, hue=)
-# plt.show()
-
-# x = np.random.rand(N)
-# y = np.random.rand(N)
-# colors = np.random.rand(N)
-# area = (30 * np.random.rand(N))**2  # 0 to 15 point radii
-
-# plt.scatter(x, y, s=area, c=colors, alpha=0.5)
-# plt.show()
-
-# meal_list_final = set(flattened)
-# print(meal_list_final)
-
-
-#################### GRAVEYARD #######################################
-
-# # meter uma func pra def key_word_split(df,col)
-# data = list(df["meals"].fillna('Not listed').str.strip().str.split(","))
-# flattened = [val for sublist in data for val in sublist]
-# flattened_strip = []
-# for word in flattened:
-#     flattened_strip.extend(word.strip().split(','))
-# meal_keyword_df = pd.Series(flattened_strip)
-# print(meal_keyword_df.value_counts())
-
-
-# fixing the issue of extra space after comma on some of the columns of the data frame
-# df['meals'] = df['meals'].str.replace(", ", ",")
-# df['cuisines'] = df['cuisines'].str.replace(", ", ",")
-# df[','] = df['top_tags'].str.replace(", ", ",")
-# df['awards'] = df['awards'].str.replace(", ", ",")
-# df['features'] = df['features'].str.replace(", ", ",")
-
-
-# df['vegan_options'] = df['vegan_options'].map({'Y': 1, 'N': 0})
-# df['gluten_free'] = df['gluten_free'].map({'Y': 1, 'N': 0})
-# df['special_diets'] = df['special_diets'].fillna(,inplace=True)
-# df['special_diets'] = df.apply(
-#    lambda row: row['vegetarian_friendly']*row['b'] if pd.isnull(row['c']) else row['special_diets'],
-#    axis=
-# print(df['meals'])
-# print(df.head(10))
-
-# print(df['region'].value_counts()[:20])
-# print(df['province'].value_counts()[:20])
-
-# print(df[df['restaurant_name']=="McDonald's"].head(10))
-
-# df['avg_price']=df.groupby('city')['avg_price'].apply(lambda x:x.fillna(x.median()))
-# print(df['avg_price'].isna().sum())
-# df['avg_price']=df.groupby('region')['avg_price'].apply(lambda x:x.fillna(x.median()))
-# print(df['avg_price'].isna().sum())
-# df['avg_price']=df.groupby('province')['avg_price'].apply(lambda x:x.fillna(x.median()))
-# print(df['avg_price'].isna().sum())
-# df['avg_price']=df.groupby('country')['avg_price'].apply(lambda x:x.fillna(x.median()))
-# print(df['avg_price'].isna().sum())
-
-#vegan_df = df[df['vegan_options'] == 1].groupby('country').agg(
-#    vegan_count=pd.NamedAgg(column='restaurant_link', aggfunc=np.size)).reset_index(level=0)
-#gluten_free_df = df[df['gluten_free'] == 1].groupby('country').agg(
-#    gluten_free_count=pd.NamedAgg(column='restaurant_link', aggfunc=np.size)).reset_index(level=0)
+rand_clf.fit(x_train, y_train)
+print('Test score using best parameters on the Random forest classifier {}'.format(rand_clf.score(x_test, y_test)))
