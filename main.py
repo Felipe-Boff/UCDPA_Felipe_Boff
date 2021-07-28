@@ -12,13 +12,11 @@ from sklearn.model_selection import GridSearchCV
 import pickle
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import tree
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import LabelEncoder
 
 # setting up the display of columns/rows/width to better visualize the data frame
 pd.set_option('display.max_rows', 1000)
