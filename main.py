@@ -360,20 +360,6 @@ cuisines_types = cuisines_types[cuisines_types['city'].isin(['Paris', 'Rome', 'M
                                                              'Birmingham', 'Copenhagen', 'Marseille', 'Porto', 'Athens',
                                                              'Nice'])].reset_index()
 print(cuisines_types.head(10))
-# def val_sum(r, c):
-#     return cuisines_unique[c].sum(axis=0)
-
-
-# not sure if I still need this lines of code until print(unique...
-# unique_counts = []
-# row = [cuisines_unique]
-# col = [cuisines_unique.columns]
-#
-# for x in row:
-#     for y in col:
-#         unique_counts.append(val_sum(x, y))
-# print(unique_counts.head(10))
-
 
 # Top 20 cusine types in European restaurants pie chart - done
 print(cuisines_unique.sum().sort_values(ascending=False).head(20))
@@ -469,20 +455,21 @@ predictions = [round(value) for value in y_pred]
 accuracy_test = accuracy_score(test_y, predictions)
 print('XGBC accuracy test {}'.format(accuracy_test))
 print(test_x[0])
+# commented the following best params as it was my first run
 # param_grid = {
 #    'learning_rate': [1, 0.1, 0.01, 0.001],
 #    'max_depth': [3, 5, 10, 20],
 #    'n_estimators': [10, 50, 100, 200]
 # }
-# # rodando ML segunda vez
-# param_grid = {
-#     'learning_rate': [0.1, 0.01, 0.001],
-#     'max_depth': [5, 10, 20],
-#     'n_estimators': [50, 100, 200]
-# }
-# grid = GridSearchCV(XGBClassifier(objective='binary:logistic'), param_grid, verbose=3)
-# grid.fit(train_x, train_y)
-# print(grid.best_params_)
+# # second attempt on the param_grids
+param_grid = {
+    'learning_rate': [0.1, 0.01, 0.001],
+    'max_depth': [5, 10, 20],
+    'n_estimators': [50, 100, 200]
+}
+grid = GridSearchCV(XGBClassifier(objective='binary:logistic'), param_grid, verbose=3)
+grid.fit(train_x, train_y)
+print(grid.best_params_)
 ##  {'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 200}
 # Create new model using the same parameters
 new_model = XGBClassifier(learning_rate=0.1, max_depth=5, n_estimators=200)
@@ -526,18 +513,18 @@ rand_clf = RandomForestClassifier(random_state=6)
 rand_clf.fit(x_train, y_train)
 print('Test score Random Forest Classifier {}'.format(rand_clf.score(x_test, y_test)))
 # tuning three hyperparameters right now, we are passing the different values for both parameters
-# grid_param = {
-#     "n_estimators": [20, 50, 100],
-#     'criterion': ['gini', 'entropy'],
-#     'max_depth': range(2, 10, 1),
-#     'min_samples_leaf': range(1, 5, 1),
-#     'min_samples_split': range(2, 5, 1),
-#     'max_features': ['auto']
-# }
-# grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
-# grid_search.fit(x_train, y_train)
-# # let's see the best parameters as per our grid search
-# print(grid_search.best_params_)
+grid_param = {
+    "n_estimators": [20, 50, 100],
+    'criterion': ['gini', 'entropy'],
+    'max_depth': range(2, 10, 1),
+    'min_samples_leaf': range(1, 5, 1),
+    'min_samples_split': range(2, 5, 1),
+    'max_features': ['auto']
+}
+grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
+grid_search.fit(x_train, y_train)
+# let's see the best parameters as per our grid search
+print(grid_search.best_params_)
 ### {'criterion': 'gini', 'max_depth': 9, 'max_features': 'auto', 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
 rand_clf = RandomForestClassifier(criterion='gini', max_depth=9, max_features='auto',
                                   min_samples_leaf=2,
@@ -548,18 +535,18 @@ rand_clf = RandomForestClassifier(criterion='gini', max_depth=9, max_features='a
 rand_clf.fit(x_train, y_train)
 print('Test score for best parameters using Random forest Classifier {}'.format(rand_clf.score(x_test, y_test)))
 
-# we are tuning three hyperparameters right now, we are passing the different values for both parameters
-# grid_param = {
-#     "n_estimators": [90, 100, 115],
-#     'criterion': ['gini', 'entropy'],
-#     'min_samples_leaf': [1, 2, 3, 4, 5],
-#     'min_samples_split': [4, 5, 6, 7, 8],
-#     'max_features': ['auto', 'log2']
-# }
-#
-# grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
-# grid_search.fit(x_train, y_train)
-# print(grid_search.best_params_)
+# tuning three hyperparameters, passing the different values
+grid_param = {
+    "n_estimators": [90, 100, 115],
+    'criterion': ['gini', 'entropy'],
+    'min_samples_leaf': [1, 2, 3, 4, 5],
+    'min_samples_split': [4, 5, 6, 7, 8],
+    'max_features': ['auto', 'log2']
+}
+
+grid_search = GridSearchCV(estimator=rand_clf, param_grid=grid_param, cv=5, n_jobs=-1, verbose=3)
+grid_search.fit(x_train, y_train)
+print(grid_search.best_params_)
 
 ## {'criterion': 'gini', 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 4, 'n_estimators': 100}
 rand_clf = RandomForestClassifier(criterion='gini', max_features='auto', min_samples_leaf=1,
